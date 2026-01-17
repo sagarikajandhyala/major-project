@@ -5,15 +5,10 @@ import numpy as np
 from predictor import predict_pixel
 
 def embed_payload(image, bitstream):
-    """
-    Embed a binary payload into the image using Prediction Error Expansion.
-    Returns the stego image and number of bits embedded.
-    """
     stego = image.copy()
     bit_index = 0
     h, w = image.shape
 
-    # Skip border pixels to avoid index issues
     for i in range(1, h):
         for j in range(1, w):
 
@@ -24,15 +19,11 @@ def embed_payload(image, bitstream):
             error = image[i, j] - pred
             bit = bitstream[bit_index]
 
-            # PEE embedding rule
+            # PEE embedding (NO SKIP)
             new_error = 2 * error + bit
-            stego_pixel = pred + new_error
+            stego[i, j] = pred + new_error
 
-            # Safety check (avoid overflow)
-            if 0 <= stego_pixel <= 255:
-                stego[i, j] = stego_pixel
-                bit_index += 1
-            else:
-                stego[i, j] = image[i, j]
+            bit_index += 1
 
     return stego, bit_index
+
